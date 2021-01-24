@@ -1,22 +1,42 @@
+# Importing pymysql and accessing cursors
 import pymysql.cursors
-connection = pymysql.connect(
-    host = "localhost",
-    user = "root",
-    database = "fastapi",
-    cursorclass=pymysql.cursors.DictCursor)
-with connection:
-    with connection.cursor() as cursor:
-        # Create a new record
-        sql = "INSERT INTO `users` (`email`, `password`) VALUES (%s, %s)"
-        cursor.execute(sql, ('webmaster@python.org', 'very-secret'))
+# Creating a connection with mysql
+# connection = pymysql.connect(
+#     host = "localhost",
+#     user = "root",
+#     database = "fastapi",
+#     cursorclass=pymysql.cursors.DictCursor)
+# with connection:
+#     with connection.cursor() as cursor:
+#         # Create a new record
+#         sql = "INSERT INTO `users` (`email`, `password`) VALUES (%s, %s)"
+#         cursor.execute(sql, ('webmaster@python.org', 'very-secret'))
+#
+#     # connection is not autocommit by default. So you must commit to save
+#     # your changes.
+#     connection.commit()
+#
+#     with connection.cursor() as cursor:
+#         # Read a single record
+#         sql = "SELECT `id`, `password` FROM `users` WHERE `email`=%s"
+#         cursor.execute(sql, ('webmaster@python.org',))
+#         result = cursor.fetchone()
+#         print(result)
 
-    # connection is not autocommit by default. So you must commit to save
-    # your changes.
-    connection.commit()
+# importing sqlalchemy in order to write easier database code / expressions
+import sqlalchemy
 
-    with connection.cursor() as cursor:
-        # Read a single record
-        sql = "SELECT `id`, `password` FROM `users` WHERE `email`=%s"
-        cursor.execute(sql, ('webmaster@python.org',))
-        result = cursor.fetchone()
-        print(result)
+metadata = sqlalchemy.MetaData()
+
+# Creating a table using sqlalchemy
+notes = sqlalchemy.Table(
+    "notes",
+    metadata,
+    # Creating a column...
+    sqlalchemy.column("id", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.column("text", sqlalchemy.String),
+    sqlalchemy.column("completed", sqlalchemy.Boolean),
+)
+
+#Setting up the sqlalchemy engine
+engine = sqlalchemy.create_engine("mysql://root:''@localhost/fastapi",encoding='latin1', echo=True)
