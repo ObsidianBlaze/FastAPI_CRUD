@@ -1,16 +1,22 @@
-from typing import Optional
+import pymysql.cursors
+connection = pymysql.connect(
+    host = "localhost",
+    user = "root",
+    database = "fastapi",
+    cursorclass=pymysql.cursors.DictCursor)
+with connection:
+    with connection.cursor() as cursor:
+        # Create a new record
+        sql = "INSERT INTO `users` (`email`, `password`) VALUES (%s, %s)"
+        cursor.execute(sql, ('webmaster@python.org', 'very-secret'))
 
-from fastapi import FastAPI
+    # connection is not autocommit by default. So you must commit to save
+    # your changes.
+    connection.commit()
 
-#Creating an instance of the FastAPI constructor
-app = FastAPI()
-
-#Route to the homepage.
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
-#Route to get an item
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Optional[str] = None):
-    return {"item_id": item_id, "q": q}
+    with connection.cursor() as cursor:
+        # Read a single record
+        sql = "SELECT `id`, `password` FROM `users` WHERE `email`=%s"
+        cursor.execute(sql, ('webmaster@python.org',))
+        result = cursor.fetchone()
+        print(result)
