@@ -20,3 +20,5 @@ Working on a crud application using pythons asynchronous web framework, Fast API
 	pip install gunicorn
 9. Get requirements and version using:
     pip freeze > requirements.txt
+10. Start up the application using:
+    uvicorn main:app --reload

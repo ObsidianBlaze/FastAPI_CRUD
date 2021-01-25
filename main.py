@@ -49,3 +49,57 @@ notes = sqlalchemy.Table(
 
 #Setting up the sqlalchemy engine
 engine = sqlalchemy.create_engine(DATABASE_URL,encoding='latin1', echo=True)
+
+#Creating the table
+metadata.create_all(engine)
+
+#importing pydantic
+from pydantic import BaseModel
+
+class NoteIn(BaseModel):
+    text: str
+    completed: bool
+
+#Response to an api call
+class Note(BaseModel):
+    id: int
+    text: str
+    completed: bool
+
+#Imporing fastapi related modules
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from typing import List
+
+# Creating an instance of the fastapi
+app = FastAPI(title="Rest Api using fastapi mysql async endpoints")
+#adding cors
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_credentials=True,
+    allow_methods=['*'],
+    allow_headers=['*']
+)
+
+# for async features, Import databases
+import databases
+database = databases.Database(DATABASE_URL)
+
+# Connecting the database on start of the app.
+@app.on_event("startup")
+async def startup():
+    await database.connect()
+
+# disconnecting the database on shutdown of the app.
+@app.on_event("shutdown")
+async def shutdown():
+    await database.disconnect()
+
+#adding notes.
+@app.post("/notes/", response_model=Note)
+async def create_note(note: NoteIn):
+    query = notes.insert().values(text= note.text, completed = note.completed)
+    # Get inserted record
+    last_record_id = await database.execute(query)
+    return {**note.dict(), "id": last_record_id}
