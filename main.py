@@ -1,3 +1,12 @@
+import urllib
+import os
+
+host_server = os.environ.get('host_server', 'localhost')
+database_name = os.environ.get('database_name', 'fastapi')
+db_username = urllib.parse.quote_plus(str(os.environ.get('db_username', 'root')))
+db_password = urllib.parse.quote_plus(str(os.environ.get('db_password', '')))
+DATABASE_URL = 'mysql://{}:{}@{}/{}'.format(db_username,db_password, host_server, database_name)
+
 # Importing pymysql and accessing cursors
 import pymysql.cursors
 # Creating a connection with mysql
@@ -39,4 +48,4 @@ notes = sqlalchemy.Table(
 )
 
 #Setting up the sqlalchemy engine
-engine = sqlalchemy.create_engine("mysql://root:''@localhost/fastapi",encoding='latin1', echo=True)
+engine = sqlalchemy.create_engine(DATABASE_URL,encoding='latin1', echo=True)
