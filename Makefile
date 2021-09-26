@@ -12,7 +12,7 @@ install: requirements.txt
 	pip install -r requirements.txt
 
 run:
-	python app.py
+	python main.py
 
 freeze:
 	pip freeze > requirements.txt
